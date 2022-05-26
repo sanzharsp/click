@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h3 class="text-center mt-5 mb-5">Оформление заказа</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Наименование</th>
+      <th scope="col">Изображение</th>
+      <th scope="col">Цена</th>
+      <th scope="col">Кол-во</th>
+        <th scope="col">Общая цена</th>
+    </tr>
+  </thead>
+  <tbody>
+   
+    {% for item in cart.products.all %}
+        <tr>
+          <th scope="row">{{ item.product.title }}</th>
+          <td class="w-25"><img src="{{ item.product.image.url }}" class="img-fluid"></td>
+          <td>{{ item.product.price }} руб.</td>
+          <td>{{ item.qty }}</td>
+            <td>{{ item.final_price }} руб.</td>
+        </tr>
+    {% endfor %}
+        <tr>
+          <td colspan="2"></td>
+          <td>Итого:</td>
+          <td>{{ cart.total_products }}</td>
+          <td><strong>{{ cart.final_price }} руб.</strong></td>
+        </tr>
+  </tbody>
+</table>
+<hr>
+
+
+
+<div class="col-md-6"> 
+  <h3 class="text-center">Оплатить по карте</h3>
+    <form id="payment-form">
+      <div id="card-element" class="mt-5 mb-5">
+      </div>
+
+        <div id="card-errors" role="alert"></div>
+          <button type="submit" data-username="{{cart.owner.user.username}}" class='btn btn-primary btn-block' id="card-button" data-secret="{{client_secret}}"> Pay</button>
+      </form>
+    </div>
+
+
+
+<script>
+      var Options = {
+        options: {
+          fullScreen: true,
+          fee: true,
+          fields: true,
+          title: 'custom_title',
+          link: 'https://fondy.eu/',
+          locales: ['en'],
+         
+        },
+        params: {
+          merchant_id: 1396424,
+          order_desc: 'custom_desc',
+          order_id: new Date().getTime(),
+          currency: 'USD',
+          amount: 5000
+        },
+        messages: {
+          ru: {
+            custom_field_1: 'Номер договора',
+            card_number: 'Номер карты',
+            custom_amount_description: 'Сума к оплате',
+            custom_field_2: 'Эл. адрес',
+            custom_field_3: 'ФИО',
+            custom_title: 'Назначение платежа',
+            custom_desc: 'Тестовый платеж'
+          },
+          en: {
+            custom_field_1: 'Contract number',
+            card_number: 'Card number',
+            custom_amount_description: 'Amount',
+            custom_field_2: 'Email',
+            custom_field_3: 'Full Name',
+            custom_title: 'Purpose of payment',
+            custom_desc: 'Test order'
+          },
+          uk: {
+            custom_field_1: 'Номер договору',
+            card_number: 'Номер карти',
+            expiry_date: 'Дійсна до',
+            pay: 'Сплатити',
+            info: 'Призначення',
+            amount: 'До сплати:',
+            custom_amount_description: 'Сума до оплати',
+            custom_field_2: 'Електронна адресса',
+            custom_field_3: 'ПІБ',
+            custom_title: 'Призначення платежа',
+            custom_desc: 'Тестова сплата'
+          }
+        },
+      }
+      fondy('#checkout-container', Options)
+
+</script>
+
+
+
+<h3 class="text-center mt-5 mb-5">Форма заказа</h3>
+<form action="{% url 'make_order' %}" method="POST">
+  
+  {% csrf_token %}
+  {{ form|crispy }}
+  <input type="submit" class="btn btn-success btn-block mb-3" values="Оформить заказ">
+</form>
+{% endblock content %}
